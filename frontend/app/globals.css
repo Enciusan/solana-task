@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+:root {
+  /* Base colors */
+  --bg: 11, 15, 17; /* #0B0F11 */
+  --card: 15, 18, 24; /* rgba(15, 18, 24, 0.6) */
+  --border: 255, 255, 255; /* rgba(255,255,255,0.08) */
+  
+  /* Electric blue palette */ 
+  --accent: 0, 229, 255; /* #00E5FF */
+  --accent-2: 58, 134, 255; /* #3A86FF */
+  
+  /* Theme variables */
+  --foreground: 248, 250, 252;
+  --background: var(--bg);
+  --card-bg: var(--card);
+  --card-foreground: 248, 250, 252;
+  --popover: var(--card);
+  --popover-foreground: 248, 250, 252;
+  --primary: var(--accent);
+  --primary-foreground: 2, 8, 23;
+  --secondary: 30, 41, 59;
+  --secondary-foreground: 248, 250, 252;
+  --muted: 30, 41, 59;
+  --muted-foreground: 148, 163, 184;
+  --accent-color: var(--accent);
+  --accent-foreground: 2, 8, 23;
+  --destructive: 239, 68, 68;
+  --destructive-foreground: 248, 250, 252;
+  --border-color: var(--border);
+  --input: 30, 41, 59;
+  --ring: var(--accent);
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border ;
+  }
+  
+  body {
+    @apply bg-[rgb(var(--bg))] text-slate-50 antialiased ;
+    background-image: 
+      radial-gradient(at 40% 20%, rgb(var(--accent))/0.05 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgb(var(--accent-2))/0.05 0px, transparent 50%);
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply rounded-2xl border border-white/[0.08] bg-slate-900/40 backdrop-blur-xl shadow-2xl;
+  }
+  
+  .accent-gradient {
+    @apply bg-gradient-to-r from-[rgb(var(--accent))] to-[rgb(var(--accent-2))];
+  }
+  
+  .accent-glow {
+    box-shadow: 0 0 20px rgba(var(--accent), 0.4), 0 0 40px rgba(var(--accent), 0.1);
+  }
+  
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-[rgb(var(--accent))]/50;
+  }
+}
+
+@layer utilities {
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+  }
+  
+  @keyframes shimmer {
+    from {
+      background-position: -200px 0;
+    }
+    to {
+      background-position: calc(200px + 100%) 0;
+    }
+  }
+}
+
+.wallet-adapter-button.wallet-adapter-button-trigger {
+  @apply bg-slate-800/60 border-slate-700 hover:bg-slate-700/60 text-slate-300 hover:text-white transition-colors text-sm font-medium h-9 px-4 py-2 border ;
+}
+
+.data-radix-popper-content-wrapper {
+  @apply top-10 left-10 z-[9999];
+}

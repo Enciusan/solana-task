@@ -1,17 +1,19 @@
 use anchor_lang::prelude::*;
 
-declare_id!("5s3PtT8kLYCv1WEp6dSh3T7EuF35Z6jSu5Cvx4hWG79H");
+declare_id!("md6p8cX3SukpjY6iQRWpshafa5TxZscFzZdviGwVXtJ");
 
 #[program]
 pub mod voting {
     use super::*;
 
-    pub fn initialize_poll(ctx: Context<InitializePoll>, 
-                            _poll_id: u64, 
-                            start_time: u64, 
-                            end_time: u64,
-                            name: String,
-                            description: String) -> Result<()> {
+    pub fn initialize_poll(
+        ctx: Context<InitializePoll>,
+        _poll_id: u64,
+        start_time: u64,
+        end_time: u64,
+        name: String,
+        description: String,
+    ) -> Result<()> {
         ctx.accounts.poll_account.poll_name = name;
         ctx.accounts.poll_account.poll_description = description;
         ctx.accounts.poll_account.poll_voting_start = start_time;
@@ -19,9 +21,11 @@ pub mod voting {
         Ok(())
     }
 
-    pub fn initialize_candidate(ctx: Context<InitializeCandidate>, 
-                                _poll_id: u64, 
-                                candidate: String) -> Result<()> {
+    pub fn initialize_candidate(
+        ctx: Context<InitializeCandidate>,
+        _poll_id: u64,
+        candidate: String,
+    ) -> Result<()> {
         ctx.accounts.candidate_account.candidate_name = candidate;
         ctx.accounts.poll_account.poll_option_index += 1;
         Ok(())
@@ -43,7 +47,6 @@ pub mod voting {
 
         Ok(())
     }
-    
 }
 
 #[derive(Accounts)]
@@ -114,7 +117,7 @@ pub struct CandidateAccount {
 
 #[account]
 #[derive(InitSpace)]
-pub struct PollAccount{
+pub struct PollAccount {
     #[max_len(32)]
     pub poll_name: String,
     #[max_len(280)]
