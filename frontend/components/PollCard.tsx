@@ -51,7 +51,7 @@ export function PollCard({ poll }: PollCardProps) {
             <span className="text-sm text-slate-400">#{poll.id}</span>
           </div>
           <CardTitle className="group-hover:text-[rgb(var(--accent))] transition-colors">
-            {poll.title}
+            {poll.name}
           </CardTitle>
           <CardDescription className="text-slate-400 line-clamp-2">
             {poll.description}
@@ -86,21 +86,6 @@ export function PollCard({ poll }: PollCardProps) {
                 <TrendingUp className="w-4 h-4" />
                 <span>{poll.candidates.length} options</span>
               </div>
-            </div>
-
-            <div className="flex items-center space-x-1">
-              <Clock className="w-4 h-4" />
-              <span>
-                {status === "upcoming"
-                  ? "Starts "
-                  : status === "live"
-                  ? "Ends "
-                  : "Ended "}
-                {(status === "upcoming"
-                  ? poll.startTime
-                  : poll.endTime
-                ).toLocaleDateString()}
-              </span>
             </div>
           </div>
         </CardContent>

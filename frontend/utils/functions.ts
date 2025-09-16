@@ -1,12 +1,14 @@
-import { Connection } from "@solana/web3.js";
-import { Voting, VotingIDL } from "../../anchor/src/voting-exports";
-import * as anchor from "@coral-xyz/anchor";
-import { PublicKey } from "@solana/web3.js";
 import { Poll } from "@/lib/mock-data";
+import * as anchor from "@coral-xyz/anchor";
 import type { WalletAdapterProps } from "@solana/wallet-adapter-base";
-import { AnchorWallet, useWallet } from "@solana/wallet-adapter-react";
+import { AnchorWallet } from "@solana/wallet-adapter-react";
+import { ConfirmedSignatureInfo, Connection, PublicKey } from "@solana/web3.js";
+import { VotingIDL } from "../../anchor/src/voting-exports";
 
-export const connection = new Connection("http://127.0.0.1:8899", "finalized");
+export const connection = new Connection(
+  "https://solana-devnet.g.alchemy.com/v2/MdPc-hO1dyYp0aVnWeqhGpdzjvG4abr0",
+  "confirmed"
+);
 
 const idl = VotingIDL as anchor.Idl;
 
@@ -57,5 +59,37 @@ export const createPoll = async (
     console.log(signature);
   } catch (error: any) {
     console.error(error);
+  }
+};
+
+export const getTransactions = async (address: PublicKey, numTx: number) => {
+  let transactionList: ConfirmedSignatureInfo[] =
+    await connection.getSignaturesForAddress(address, {
+      limit: numTx,
+    });
+
+  let signatureList = transactionList.map(
+    (transaction) => transaction.signature
+  );
+
+  let txList = await connection.getParsedTransactions(signatureList, {
+    maxSupportedTransactionVersion: 0,
+  });
+  console.log(signatureList, txList);
+
+  for (const tx of txList) {
+    // if (!tx) return;
+    if (!tx) return;
+    const coder = new anchor.BorshCoder(idl);
+    const ix = coder.instruction.decode(
+      tx.transaction.message.instructions[2].data,
+      "base58"
+    );
+    console.log(
+      anchor.BN(ix?.data?.start_time).toNumber(),
+      anchor.BN(ix?.data?.end_time).toNumber(),
+      anchor.BN(ix?.data?._poll_id).toNumber(),
+      ix?.data
+    );
   }
 };

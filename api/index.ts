@@ -29,7 +29,7 @@ const initializeApp = async () => {
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
-      console.log(`Solana cluster: ${process.env.CLUSTER || "localnet"}`);
+      console.log(`Solana cluster: ${process.env.CLUSTER || "devnet"}`);
     });
   } catch (error) {
     console.error("Failed to initialize application:", error);

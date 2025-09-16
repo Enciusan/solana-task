@@ -170,7 +170,7 @@ export default function CreatePollPage() {
     console.log(formData);
     await createPoll(
       {
-        id: 1,
+        id: 2,
         name: formData.name,
         description: formData.description,
         startTime: new anchor.BN(

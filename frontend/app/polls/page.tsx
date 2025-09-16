@@ -1,5 +1,4 @@
-import { PollCard } from "@/components/PollCard";
-import { Badge } from "@/components/ui/badge";
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,11 +7,25 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { mockPolls } from "@/lib/mock-data";
+import { connection, getTransactions, programId } from "@/utils/functions";
 import { Clock, Plus, TrendingUp, Vote } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export default function PollsPage() {
   const totalVotes = mockPolls.reduce((sum, poll) => sum + poll.totalVotes, 0);
+  const getTxs = async () => await getTransactions(programId, 1000);
+
+  // const signatures = async () =>
+  //   await getAllProgramSignatures(connection, programId, {
+  //     until: undefined,
+  //     maxSignatures: 1000,
+  //   });
+
+  useEffect(() => {
+    getTxs();
+    // signatures();
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -57,7 +70,9 @@ export default function PollsPage() {
                   {
                     mockPolls.filter(
                       (poll) =>
-                        poll.startTime < new Date() && poll.endTime > new Date()
+                        new Date(poll.startTime).getTime() <
+                          new Date().getTime() &&
+                        new Date(poll.endTime).getTime() > new Date().getTime()
                     ).length
                   }
                 </p>
@@ -74,8 +89,11 @@ export default function PollsPage() {
               <div>
                 <p className="text-2xl font-bold text-slate-100">
                   {
-                    mockPolls.filter((poll) => poll.startTime > new Date())
-                      .length
+                    mockPolls.filter(
+                      (poll) =>
+                        new Date(poll.startTime).getTime() >
+                        new Date().getTime()
+                    ).length
                   }
                 </p>
                 <p className="text-sm text-slate-400">Upcoming</p>

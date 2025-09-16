@@ -23,7 +23,7 @@ export function TopHeader() {
             variant="secondary"
             className="bg-slate-800/60 text-slate-300 border-slate-700"
           >
-            Devnet
+            Localnet
           </Badge>
         </div>
 

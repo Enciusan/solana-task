@@ -32,7 +32,7 @@ export default function RootLayout({
               <div className="max-w-7xl mx-auto">{children}</div>
             </main>
           </div>
-          <Toaster />
+          <Toaster richColors />
         </ContextProvider>
       </body>
     </html>
