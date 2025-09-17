@@ -13,9 +13,13 @@ import { getTransactions, programId } from "@/utils/functions";
 import { Poll } from "@/utils/types";
 import { Clock, Plus, TrendingUp, Vote } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function PollsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const refreshStatus = searchParams.get("refresh");
   const getTxs = async () => await getTransactions(programId, 1000);
   const [polls, setPolls] = useState<Poll[]>([]);
 
@@ -36,8 +40,17 @@ export default function PollsPage() {
   useEffect(() => {
     getTxs();
     getPools();
-    // signatures();
   }, []);
+
+  useEffect(() => {
+    if (refreshStatus) {
+      console.log("Refetching polls...", refreshStatus);
+
+      router.replace("/polls");
+      getPools();
+    }
+  }, [searchParams]);
+
   console.log(polls);
 
   return (

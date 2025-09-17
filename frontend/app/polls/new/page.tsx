@@ -23,9 +23,10 @@ import { format } from "date-fns";
 import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChangeEventHandler, useState } from "react";
+import { ChangeEventHandler, useEffect, useState } from "react";
 import { toast } from "sonner";
 import * as anchor from "@coral-xyz/anchor";
+import { getPoolsFromApi } from "@/utils/api";
 
 interface PollFormData {
   name: string;
@@ -49,6 +50,18 @@ export default function CreatePollPage() {
     endTime: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pollsCount, setPollsCount] = useState<number>(0);
+
+  const getPools = async () => {
+    const { polls } = await getPoolsFromApi();
+    if (polls.success === true) {
+      setPollsCount(polls.data.polls.length);
+    }
+  };
+
+  useEffect(() => {
+    getPools();
+  }, []);
 
   const handleTimeChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     const time = e.target.value;
@@ -170,7 +183,7 @@ export default function CreatePollPage() {
     console.log(formData);
     await createPoll(
       {
-        pollId: 2,
+        pollId: new anchor.BN(pollsCount + 1),
         name: formData.name,
         description: formData.description,
         startTime: new anchor.BN(
@@ -189,7 +202,7 @@ export default function CreatePollPage() {
       description: "Your poll is now live and ready for voting.",
     });
 
-    router.push("/polls");
+    router.push("/polls?refresh=true");
   };
 
   return (

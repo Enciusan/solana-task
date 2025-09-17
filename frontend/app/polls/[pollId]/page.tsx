@@ -9,20 +9,19 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-// import { StatusChip } from "@/components/StatusChip";
-// import { GradientProgress } from "@/components/GradientProgress";
-// import { PollDetailClient } from "@/components/PollDetailClient";
 import { ArrowLeft, Vote, Users, Calendar, UserPlus } from "lucide-react";
 import { getPollProgress, getPollStatus } from "@/utils/functions";
-import { getPoolsByIdFromApi } from "@/utils/api";
-import { ExtraInformationPool, Poll } from "@/utils/types";
+import { getCandidatesFromApiByPollId, getPoolsByIdFromApi } from "@/utils/api";
+import { Candidate, ExtraInformationPool, Poll } from "@/utils/types";
 import { useEffect, useState } from "react";
 import { StatusChip } from "@/components/StatusChip";
 import { GradientProgress } from "@/components/GradientProgress";
+import { PollDetailClient } from "@/components/PollDetailCandidate";
 
 export default function PollDetailPage({ params }: any) {
   const pollId = params.pollId;
   const [poll, setPoll] = useState<ExtraInformationPool | null>(null);
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
 
   const getPools = async () => {
     const { poll } = await getPoolsByIdFromApi(pollId as string);
@@ -33,9 +32,21 @@ export default function PollDetailPage({ params }: any) {
     }
   };
 
+  const getCandidates = async () => {
+    const { candidates } = await getCandidatesFromApiByPollId(pollId);
+    console.log("candidates Info", candidates);
+
+    if (candidates.success === true) {
+      setCandidates(candidates.data);
+    }
+  };
+
   useEffect(() => {
     getPools().then(() => {
       console.log(poll);
+    });
+    getCandidates().then(() => {
+      console.log(candidates);
     });
   }, [pollId]);
 
@@ -67,8 +78,9 @@ export default function PollDetailPage({ params }: any) {
 
   //   Sort candidates by votes for display
   const sortedCandidates =
-    poll.candidates.length > 0 &&
-    [...poll.candidates].sort((a, b) => b.votes - a.votes);
+    poll.candidates.length > 0
+      ? [...poll.candidates].sort((a, b) => b.votes - a.votes)
+      : [];
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {
@@ -184,11 +196,11 @@ export default function PollDetailPage({ params }: any) {
           </Link>
         </div>
 
-        {/* <PollDetailClient
+        <PollDetailClient
           poll={poll}
           status={status}
           sortedCandidates={sortedCandidates}
-        /> */}
+        />
       </div>
 
       {/* Empty State */}

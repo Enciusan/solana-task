@@ -34,7 +34,7 @@ export const createPoll = async (
   )[0];
   console.log(
     pollAccountPDA.toBase58(),
-    new anchor.BN(poll.pollId),
+    poll.pollId,
     poll.name as string,
     poll.description as string,
     poll.startTime as anchor.BN,
@@ -49,10 +49,6 @@ export const createPoll = async (
       poll.name as string,
       poll.description as string
     )
-    .accounts({
-      signer: publicKey,
-      poll_account: pollAccountPDA,
-    })
     .transaction();
   try {
     const signature = await sendTransaction(initialisePollTx, connection, {
@@ -81,12 +77,24 @@ export const createCandidate = async (
     [Buffer.from("poll"), new anchor.BN(pollId).toArrayLike(Buffer, "le", 8)],
     programId
   )[0];
+  const candidateAccountPDA = PublicKey.findProgramAddressSync(
+    [
+      new anchor.BN(pollId).toArrayLike(Buffer, "le", 8),
+      candidate.name as string,
+    ],
+    programId
+  )[0];
+  console.log(
+    pollAccountPDA.toBase58(),
+    candidateAccountPDA.toBase58(),
+    candidate.name as string
+  );
 
   const initialisePollTx = await program.methods
-    .initialize_candidate(new anchor.BN(pollId), candidate.name as string)
+    .initializeCandidate(new anchor.BN(pollId), candidate.name as string)
     .accounts({
       signer: publicKey,
-      poll_account: pollAccountPDA,
+      pollAccount: pollAccountPDA,
     })
     .transaction();
   try {
@@ -115,21 +123,22 @@ export const getTransactions = async (address: PublicKey, numTx: number) => {
   });
   console.log(signatureList, txList);
 
-  // for (const tx of txList) {
-  //   // if (!tx) return;
-  //   if (!tx) return;
-  //   const coder = new anchor.BorshCoder(idl);
-  //   const ix = coder.instruction.decode(
-  //     tx.transaction.message.instructions[2].data,
-  //     "base58"
-  //   );
-  // console.log(
-  //   anchor.BN(ix?.data?.start_time).toNumber(),
-  //   anchor.BN(ix?.data?.end_time).toNumber(),
-  //   anchor.BN(ix?.data._poll_id).toNumber(),
-  //   ix?.data
-  // );
-  // }
+  for (const tx of txList) {
+    // if (!tx) return;
+    if (!tx) return;
+    const coder = new anchor.BorshCoder(idl);
+    console.log(tx);
+    const ix = coder.instruction.decode(
+      tx.transaction.message.instructions[2].data,
+      "base58"
+    );
+    console.log(
+      // anchor.BN(ix?.data?.start_time).toNumber(),
+      // anchor.BN(ix?.data?.end_time).toNumber(),
+      anchor.BN(ix?.data._poll_id).toNumber(),
+      ix
+    );
+  }
 };
 
 export function getPollById(id: number): Poll | undefined {

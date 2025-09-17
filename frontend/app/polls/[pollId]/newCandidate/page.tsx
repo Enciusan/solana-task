@@ -17,11 +17,15 @@ import { toast } from "sonner";
 import { ArrowLeft, UserPlus } from "lucide-react";
 import { getPoolsByIdFromApi } from "@/utils/api";
 import { ExtraInformationPool } from "@/utils/types";
+import { createCandidate } from "@/utils/functions";
+import { useAnchorWallet, useWallet } from "@solana/wallet-adapter-react";
 
 export default function AddCandidatePage({ params }: any) {
   const router = useRouter();
   const [candidateName, setCandidateName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { publicKey, sendTransaction } = useWallet();
+  const wallet = useAnchorWallet();
 
   const pollId = params.pollId;
 
@@ -83,9 +87,18 @@ export default function AddCandidatePage({ params }: any) {
       setIsSubmitting(false);
       return;
     }
-
+    if (!publicKey || !wallet) return;
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await createCandidate(
+      Number(pollId),
+      {
+        pollId: Number(pollId),
+        name: candidateName,
+      },
+      publicKey,
+      wallet,
+      sendTransaction
+    );
 
     toast.success("Candidate added successfully!", {
       description: `${candidateName} has been added to the poll.`,
@@ -164,9 +177,9 @@ export default function AddCandidatePage({ params }: any) {
                   <div className="space-y-2">
                     <Label>Existing Candidates</Label>
                     <div className="bg-slate-800/30 rounded-lg p-4 space-y-2">
-                      {poll?.candidates.map((candidate) => (
+                      {poll?.candidates.map((candidate, index) => (
                         <div
-                          key={candidate.id}
+                          key={index}
                           className="flex justify-between items-center text-sm"
                         >
                           <span className="text-slate-300">

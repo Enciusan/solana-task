@@ -1,14 +1,19 @@
 import express from "express";
 import type { Request, Response } from "express";
-import { getPoolsFromDb, getPoolsFromDbById } from "../db/functions";
+import { getCandidatesFromDbByPollId, getPoolsFromDb, getPoolsFromDbById } from "../db/functions";
 
 const router = express.Router();
 
-const polls = await getPoolsFromDb();
 const candidates = { candidate_id: 1, poll_id: 1, name: "test", votes: 0 };
 
 router.get("/", async (req: Request, res: Response) => {
   try {
+    const polls = await getPoolsFromDb();
+    res.set({
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0",
+    });
     res.status(200).json({
       success: true,
       data: polls,
@@ -25,6 +30,7 @@ router.get("/", async (req: Request, res: Response) => {
 router.get("/:pollId", async (req: Request, res: Response) => {
   try {
     const { pollId } = req.params;
+    console.log("pollId", pollId);
     const { poll, error } = await getPoolsFromDbById(pollId!);
 
     if (error) {
@@ -33,6 +39,11 @@ router.get("/:pollId", async (req: Request, res: Response) => {
         message: "Poll not found",
       });
     }
+    res.set({
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0",
+    });
 
     res.status(200).json({
       success: true,
@@ -50,8 +61,9 @@ router.get("/:pollId", async (req: Request, res: Response) => {
 router.get("/:pollId/leaderboard", async (req: Request, res: Response) => {
   try {
     const { pollId } = req.params;
+    const { candidates, error } = await getCandidatesFromDbByPollId(Number(pollId));
 
-    if (!pollId) {
+    if (error) {
       return res.status(404).json({
         success: false,
         message: "Poll not found",
@@ -61,9 +73,8 @@ router.get("/:pollId/leaderboard", async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       data: {
-        pollId: polls.poll_id,
-        name: polls.name,
-        leaderboard: candidates,
+        success: true,
+        data: candidates,
       },
     });
   } catch (error) {
