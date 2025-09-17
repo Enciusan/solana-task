@@ -43,19 +43,15 @@ export default function PollDetailPage({ params }: any) {
   };
 
   useEffect(() => {
-    getPools().then(() => {
-      console.log(poll);
-    });
-    getCandidates().then(() => {
-      console.log(candidates);
-    });
+    getPools();
+    getCandidates();
   }, [pollId]);
 
   useEffect(() => {
     if (!poll) return;
     // Subscribe to votes
     const channel = supabase
-      .channel(`realtime-votes`)
+      .channel(`realtime-votes-for-pollId-${pollId}`)
       .on(
         "postgres_changes",
         {
@@ -64,7 +60,8 @@ export default function PollDetailPage({ params }: any) {
           table: "candidates",
           filter: `poll_id=eq.${poll.pollId}`,
         },
-        (payload: Candidate) => {
+        (payload: any) => {
+          console.log("Payload: ", payload);
           setCandidates((current) => [...current, payload]);
         }
       )
@@ -76,14 +73,14 @@ export default function PollDetailPage({ params }: any) {
         .eq("poll_id", poll.pollId)
         .then((data) => {
           if (data) {
-            setMessages(data);
+            setCandidates(data);
           }
         }))();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [pollId]);
 
   if (poll === null) {
     return (

@@ -160,7 +160,7 @@ export default function PollsPage() {
               }
             </Badge>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {polls.filter(
               (pool) =>
                 new Date(pool.startTime).getTime() / 1000 <
@@ -209,7 +209,7 @@ export default function PollsPage() {
               }
             </Badge>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {polls
               .filter(
                 (pool) =>
@@ -243,7 +243,7 @@ export default function PollsPage() {
               }
             </Badge>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {polls
               .filter(
                 (pool) =>

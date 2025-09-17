@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "nodemon index.ts && PORT=8899",
+    "start": "bun index.ts && bun websocket.ts && PORT=3001",
     "dev": "nodemon --watch index.ts",
     "test": "bun test"
   },

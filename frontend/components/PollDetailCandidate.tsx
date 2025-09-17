@@ -33,7 +33,7 @@ export function PollDetailClient({
 
     setIsVoting(true);
 
-    await vote(candidate, publicKey, wallet, sendTransaction);
+    await vote(poll.pollId, candidate, publicKey, wallet, sendTransaction);
 
     setUserVote(candidate.id);
     toast.success("Vote submitted successfully!", {
@@ -126,9 +126,9 @@ export function PollDetailClient({
                         className="accent-gradient text-slate-900"
                         disabled={
                           isVoting ||
-                          new Date(poll.endTime).getTime() >
+                          new Date(poll.endTime).getTime() <
                             new Date().getTime() ||
-                          new Date(poll.startTime).getTime() <
+                          new Date(poll.startTime).getTime() >
                             new Date().getTime()
                         }
                       >
