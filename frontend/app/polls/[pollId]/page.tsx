@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { StatusChip } from "@/components/StatusChip";
 import { GradientProgress } from "@/components/GradientProgress";
 import { PollDetailClient } from "@/components/PollDetailCandidate";
+import { supabase } from "@/utils/initClientSupabase";
 
 export default function PollDetailPage({ params }: any) {
   const pollId = params.pollId;
@@ -49,6 +50,40 @@ export default function PollDetailPage({ params }: any) {
       console.log(candidates);
     });
   }, [pollId]);
+
+  useEffect(() => {
+    if (!poll) return;
+    // Subscribe to votes
+    const channel = supabase
+      .channel(`realtime-votes`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "candidates",
+          filter: `poll_id=eq.${poll.pollId}`,
+        },
+        (payload: Candidate) => {
+          setCandidates((current) => [...current, payload]);
+        }
+      )
+      .subscribe();
+    (async () =>
+      await supabase
+        .from("votes")
+        .select("*")
+        .eq("poll_id", poll.pollId)
+        .then((data) => {
+          if (data) {
+            setMessages(data);
+          }
+        }))();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   if (poll === null) {
     return (

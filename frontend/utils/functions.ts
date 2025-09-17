@@ -14,6 +14,7 @@ const idl = VotingIDL as anchor.Idl;
 
 export const programId = new PublicKey(VotingIDL.address);
 
+// CONTRACT METHODS
 export const createPoll = async (
   poll: Partial<Poll>,
   publicKey: PublicKey,
@@ -108,6 +109,51 @@ export const createCandidate = async (
   }
 };
 
+export const vote = async (
+  candidateInfo: Candidate,
+  publicKey: PublicKey,
+  wallet: AnchorWallet,
+  sendTransaction: WalletAdapterProps["sendTransaction"]
+) => {
+  const provider = new anchor.AnchorProvider(connection, wallet, {
+    preflightCommitment: "finalized",
+  });
+  const program = new anchor.Program(idl, provider);
+  const pollAccountPDA = PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("poll"),
+      new anchor.BN(candidateInfo.pollId).toArrayLike(Buffer, "le", 8),
+    ],
+    programId
+  )[0];
+  const candidateAccountPDA = PublicKey.findProgramAddressSync(
+    [
+      new anchor.BN(candidateInfo.pollId).toArrayLike(Buffer, "le", 8),
+      candidateInfo.name,
+    ],
+    programId
+  )[0];
+
+  const initialiseVoteTx = await program.methods
+    .vote(new anchor.BN(candidateInfo.pollId), candidateInfo.name)
+    .accounts({
+      signer: publicKey,
+      poll_account: pollAccountPDA,
+      candidate_account: candidateAccountPDA,
+    })
+    .transaction();
+  try {
+    const signature = await sendTransaction(initialiseVoteTx, connection, {
+      skipPreflight: true,
+    });
+
+    console.log(signature);
+  } catch (error: any) {
+    console.error(error);
+  }
+};
+
+// HELPER FUNCTIONS
 export const getTransactions = async (address: PublicKey, numTx: number) => {
   let transactionList: ConfirmedSignatureInfo[] =
     await connection.getSignaturesForAddress(address, {
@@ -127,23 +173,19 @@ export const getTransactions = async (address: PublicKey, numTx: number) => {
     // if (!tx) return;
     if (!tx) return;
     const coder = new anchor.BorshCoder(idl);
-    console.log(tx);
+    // console.log(tx);
     const ix = coder.instruction.decode(
       tx.transaction.message.instructions[2].data,
       "base58"
     );
-    console.log(
-      // anchor.BN(ix?.data?.start_time).toNumber(),
-      // anchor.BN(ix?.data?.end_time).toNumber(),
-      anchor.BN(ix?.data._poll_id).toNumber(),
-      ix
-    );
+    // console.log(
+    // anchor.BN(ix?.data?.start_time).toNumber(),
+    // anchor.BN(ix?.data?.end_time).toNumber(),
+    // anchor.BN(ix?.data._poll_id).toNumber(),
+    // ix
+    // );
   }
 };
-
-export function getPollById(id: number): Poll | undefined {
-  return mockPolls.find((poll) => poll.pollId === id);
-}
 
 export function getPollStatus(poll: Poll): "upcoming" | "live" | "ended" {
   const now = Math.floor(Date.now() / 1000);

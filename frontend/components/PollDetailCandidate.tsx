@@ -1,35 +1,41 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { Vote, CheckCircle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { vote } from "@/utils/functions";
+import { supabase } from "@/utils/initClientSupabase";
 import { Candidate, Poll } from "@/utils/types";
+import { useAnchorWallet, useWallet } from "@solana/wallet-adapter-react";
+import { CheckCircle, Clock, Vote } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface PollDetailClientProps {
+  poll: Poll;
   status: "upcoming" | "live" | "ended";
   sortedCandidates: Candidate[];
 }
 
 export function PollDetailClient({
+  poll,
   status,
   sortedCandidates,
 }: PollDetailClientProps) {
   const [userVote, setUserVote] = useState<string | null>(null);
   const [isVoting, setIsVoting] = useState(false);
+  const { publicKey, sendTransaction } = useWallet();
+  const wallet = useAnchorWallet();
 
   const canVote = status === "live" && !userVote;
 
-  const handleVote = async (candidateId: string) => {
-    if (!canVote) return;
+  const handleVote = async (candidate: Candidate) => {
+    if (!canVote || !publicKey || !wallet) return;
 
     setIsVoting(true);
 
-    // Simulate voting
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await vote(candidate, publicKey, wallet, sendTransaction);
 
-    setUserVote(candidateId);
+    setUserVote(candidate.id);
     toast.success("Vote submitted successfully!", {
       description: "Your vote has been recorded on the blockchain.",
     });
@@ -68,13 +74,13 @@ export function PollDetailClient({
 
             return (
               <div
-                key={candidate.id}
+                key={index}
                 className={cn(
                   "glass-card transition-all duration-300 p-6 rounded-2xl",
                   hasUserVote && "border-green-500/30 bg-green-500/5",
                   canVote && "hover:bg-slate-800/40 cursor-pointer"
                 )}
-                onClick={() => canVote && handleVote(candidate.id)}
+                onClick={() => canVote && handleVote(candidate)}
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-4">
@@ -118,7 +124,13 @@ export function PollDetailClient({
                       <Button
                         size="sm"
                         className="accent-gradient text-slate-900"
-                        disabled={isVoting}
+                        disabled={
+                          isVoting ||
+                          new Date(poll.endTime).getTime() >
+                            new Date().getTime() ||
+                          new Date(poll.startTime).getTime() <
+                            new Date().getTime()
+                        }
                       >
                         {isVoting ? (
                           <div className="w-4 h-4 border-2 border-slate-700 border-t-transparent rounded-full animate-spin" />
