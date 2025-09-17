@@ -22,11 +22,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Settings, Moon, Sun, Globe, Key, Database } from "lucide-react";
-import { VotingIDL } from "../../../anchor/src/voting-exports";
+import VotingIDL from "../../idl/voting.json";
 
 export default function SettingsPage() {
   const [darkMode, setDarkMode] = useState(true);
-  const [cluster, setCluster] = useState("localnet");
+  const [cluster, setCluster] = useState("devnet");
   const programId = VotingIDL.address;
 
   // Load theme preference
@@ -120,14 +120,10 @@ export default function SettingsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                <SelectItem
-                  className="text-slate-400"
-                  value="localnet"
-                  disabled
-                >
+                <SelectItem className="text-slate-400" value="devnet" disabled>
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-slate-400 rounded-full" />
-                    <span>Localnet</span>
+                    <span>Devnet</span>
                   </div>
                 </SelectItem>
               </SelectContent>

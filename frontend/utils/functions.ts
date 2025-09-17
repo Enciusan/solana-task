@@ -2,8 +2,8 @@ import * as anchor from "@coral-xyz/anchor";
 import type { WalletAdapterProps } from "@solana/wallet-adapter-base";
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 import { ConfirmedSignatureInfo, Connection, PublicKey } from "@solana/web3.js";
-import { VotingIDL } from "../../anchor/src/voting-exports";
 import { Candidate, Poll } from "./types";
+import VotingIDL from "../idl/voting.json";
 
 export const connection = new Connection(
   "https://solana-devnet.g.alchemy.com/v2/MdPc-hO1dyYp0aVnWeqhGpdzjvG4abr0",
