@@ -22,7 +22,7 @@ import { supabase } from "@/utils/initClientSupabase";
 export default function PollDetailPage({ params }: any) {
   const pollId = params.pollId;
   const [poll, setPoll] = useState<ExtraInformationPool | null>(null);
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [candidates, setCandidates] = useState<any[]>([]);
 
   const getPools = async () => {
     const { poll } = await getPoolsByIdFromApi(pollId as string);
@@ -66,16 +66,16 @@ export default function PollDetailPage({ params }: any) {
         }
       )
       .subscribe();
-    (async () =>
-      await supabase
-        .from("votes")
-        .select("*")
-        .eq("poll_id", poll.pollId)
-        .then((data) => {
-          if (data) {
-            setCandidates(data);
-          }
-        }))();
+    // (async () =>
+    //   await supabase
+    //     .from("votes")
+    //     .select("*")
+    //     .eq("poll_id", poll.pollId)
+    //     .then((data) => {
+    //       if (data) {
+    //         setCandidates(data);
+    //       }
+    //     }))();
 
     return () => {
       supabase.removeChannel(channel);

@@ -172,7 +172,7 @@ export default function ResultsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {livePolls.map((poll) => (
               <Card
-                key={poll.id}
+                key={poll.pollId}
                 className="glass-card hover:bg-slate-800/40 transition-all"
               >
                 <CardHeader className="pb-3">
@@ -185,7 +185,7 @@ export default function ResultsPage() {
                 </CardHeader>
                 <CardContent className="pt-0">
                   <div className="flex justify-between text-sm text-slate-400">
-                    <span>{poll.totalVotes} votes</span>
+                    <span>100 votes</span>
                     <span>{poll.candidates.length} candidates</span>
                   </div>
                 </CardContent>

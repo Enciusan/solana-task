@@ -14,9 +14,9 @@ import { Poll } from "@/utils/types";
 import { Clock, Plus, TrendingUp, Vote } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-export default function PollsPage() {
+function PollsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const refreshStatus = searchParams.get("refresh");
@@ -274,5 +274,56 @@ export default function PollsPage() {
         </Card>
       )}
     </div>
+  );
+}
+
+function PollsPageFallback() {
+  return (
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-100 mb-2">All Polls</h1>
+          <p className="text-slate-400">
+            Participate in decentralized governance and community decisions
+          </p>
+        </div>
+        <Link href="/polls/new">
+          <Button className="accent-gradient text-slate-900 hover:shadow-lg transition-all">
+            <Plus className="w-4 h-4 mr-2" />
+            Create Poll
+          </Button>
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <Card key={i} className="glass-card">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-2">
+                <div className="w-5 h-5 bg-slate-600 rounded animate-pulse" />
+                <div>
+                  <div className="w-8 h-6 bg-slate-600 rounded animate-pulse mb-1" />
+                  <div className="w-16 h-4 bg-slate-600 rounded animate-pulse" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Card className="glass-card">
+        <CardContent className="p-12 text-center">
+          <div className="w-12 h-12 bg-slate-600 rounded mx-auto mb-4 animate-pulse" />
+          <div className="w-32 h-6 bg-slate-600 rounded mx-auto mb-2 animate-pulse" />
+          <div className="w-48 h-4 bg-slate-600 rounded mx-auto animate-pulse" />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default function PollsPage() {
+  return (
+    <Suspense fallback={<PollsPageFallback />}>
+      <PollsContent />
+    </Suspense>
   );
 }
