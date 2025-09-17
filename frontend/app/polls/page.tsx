@@ -277,6 +277,9 @@ function PollsContent() {
   );
 }
 
+// HERE IT CAN BE DONE BETTER BY BREAKING IN SEPARATE COMPONENTS PollsPageFallback AND PollsContent AND LET
+// JUST THE PAGE WITH SUSPENSE AND PollsContent
+
 function PollsPageFallback() {
   return (
     <div className="space-y-8">

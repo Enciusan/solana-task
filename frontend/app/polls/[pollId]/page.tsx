@@ -80,7 +80,7 @@ export default function PollDetailPage({ params }: any) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [pollId]);
+  }, [pollId, supabase]);
 
   if (poll === null) {
     return (

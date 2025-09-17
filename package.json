@@ -1,0 +1,35 @@
+{
+  "name": "api",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "cd api/ && bun index.ts && bun websocket.ts",
+    "devFE": "cd frontend && next dev",
+    "buildFE": "cd frontend && next build",
+    "startFE": "cd frontend && next start",
+    "dev": "nodemon --watch index.ts",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
+    "@solana/buffer-layout": "^4.0.1",
+    "@solana/web3.js": "^1.87.6",
+    "@supabase/supabase-js": "^2.57.4",
+    "@types/express": "^5.0.3",
+    "body-parser": "^1.20.2",
+    "bs58": "^5.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^5.1.0",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.0"
+  }
+}
