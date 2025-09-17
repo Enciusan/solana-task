@@ -176,17 +176,17 @@ export const getTransactions = async (address: PublicKey, numTx: number) => {
     if (!tx) return;
     const coder = new anchor.BorshCoder(idl);
     if (tx.meta?.err === null) {
-      console.log(tx.transaction.message.accountKeys[0].pubkey.toBase58());
-      const ix = coder.instruction.decode(
-        tx.transaction.message.instructions[2].data,
-        "base58"
-      );
-      console.log(
-        // anchor.BN(ix?.data?.start_time).toNumber(),
-        // anchor.BN(ix?.data?.end_time).toNumber(),
-        // anchor.BN(ix?.data._poll_id).toNumber(),
-        ix
-      );
+      // console.log(tx.transaction.message.accountKeys[0]);
+      // const ix = coder.instruction.decode(
+      //   tx.transaction.message.instructions[2].data,
+      //   "base58"
+      // );
+      // console.log(
+      // anchor.BN(ix?.data?.start_time).toNumber(),
+      // anchor.BN(ix?.data?.end_time).toNumber(),
+      // anchor.BN(ix?.data._poll_id).toNumber(),
+      // ix
+      // );
     }
   }
 };

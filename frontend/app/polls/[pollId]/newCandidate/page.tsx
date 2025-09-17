@@ -88,11 +88,10 @@ export default function AddCandidatePage({ params }: any) {
       return;
     }
     if (!publicKey || !wallet) return;
-    // Simulate API call
+
     await createCandidate(
       Number(pollId),
       {
-        pollId: Number(pollId),
         name: candidateName,
       },
       publicKey,

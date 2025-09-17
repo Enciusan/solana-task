@@ -2,7 +2,7 @@ import * as anchor from "@coral-xyz/anchor";
 import type { ConfirmedSignatureInfo, PublicKey } from "@solana/web3.js";
 import { VotingIDL } from "../anchor/src/voting-exports";
 import { connection } from "../frontend/utils/functions";
-import { addCandidateToDb, addPollToDb, checkIfCandidateExists, checkIfPollExists } from "./db/functions";
+import { addCandidateToDb, addPollToDb, addVoteToDb, checkIfCandidateExists, checkIfPollExists } from "./db/functions";
 
 export const getTransactions = async (address: PublicKey, slot: number, numTx: number) => {
   let transactionList: ConfirmedSignatureInfo[] = await connection.getSignaturesForAddress(address, {
@@ -14,9 +14,7 @@ export const getTransactions = async (address: PublicKey, slot: number, numTx: n
   let txList = await connection.getParsedTransactions(signatureList, {
     maxSupportedTransactionVersion: 0,
   });
-  console.log(signatureList, txList);
 
-  let votes: any[] = [];
   for (const tx of txList) {
     if (!tx) continue;
     const coder = new anchor.BorshCoder(VotingIDL as anchor.Idl);
@@ -55,11 +53,15 @@ export const getTransactions = async (address: PublicKey, slot: number, numTx: n
           break;
 
         case "vote":
-          votes.push(ix);
+          if (tx.transaction.message.accountKeys[0]?.signer === true) {
+            await addVoteToDb(ix.data, slot, tx.transaction.message.accountKeys[0]?.pubkey.toBase58());
+          } else {
+            console.error("Vote instruction missing signer");
+          }
           break;
 
         default:
-          console.log("Unknown instruction:", `"${ix.name}"`);
+          console.log("Default -- instruction:", `"${ix.name}"`);
       }
       console.log(ix);
     }

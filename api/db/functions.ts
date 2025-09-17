@@ -39,6 +39,56 @@ export const addCandidateToDb = async (poll: any) => {
   }
 };
 
+export const addVoteToDb = async (vote: any, slot: number, voter: string) => {
+  const { data: candidate, error: candidateError } = await supabase
+    .from("candidates")
+    .select("candidate_id")
+    .eq("name", vote._candidate)
+    .eq("poll_id", anchor.BN(vote._poll_id).toNumber())
+    .single();
+  if (candidateError) {
+    console.error("Error fetching candidate from database:", candidateError);
+    return { error: candidateError };
+  }
+
+  const { data, error } = await supabase.from("votes").insert({
+    poll_id: anchor.BN(vote._poll_id).toNumber(),
+    candidate_id: candidate.candidate_id,
+    voter: voter,
+    slot: slot,
+  });
+  if (error) {
+    console.error("Error adding vote to database:", error);
+  } else {
+    updateCandidateVotes(anchor.BN(vote._poll_id).toNumber(), vote._candidate);
+    console.log("Vote added to database:", data);
+  }
+};
+
+export const updateCandidateVotes = async (pollId: number, candidateName: string) => {
+  const { data: candidate, error: candidateError } = await supabase
+    .from("candidates")
+    .select("candidate_id, votes")
+    .eq("name", candidateName)
+    .eq("poll_id", pollId)
+    .single();
+  if (candidateError) {
+    console.error("Error fetching candidate from database:", candidateError);
+    return { error: candidateError };
+  }
+  console.log("updateCandidateVotes", candidate);
+
+  const { data, error } = await supabase
+    .from("candidates")
+    .update({ votes: candidate.votes + 1 })
+    .eq("candidate_id", candidate.candidate_id);
+  if (error) {
+    console.error("Error updating candidate votes:", error);
+  } else {
+    console.log("Candidate votes updated:", data);
+  }
+};
+
 export const checkIfPollExists = async (id: number) => {
   const { data, error } = await supabase.from("polls").select("*").eq("poll_id", id).single();
   console.log("checkIfPollExists", data, error);
