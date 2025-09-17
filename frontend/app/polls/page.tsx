@@ -1,4 +1,6 @@
 "use client";
+import { PollCard } from "@/components/PollCard";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -6,26 +8,37 @@ import {
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
-import { mockPolls } from "@/lib/mock-data";
-import { connection, getTransactions, programId } from "@/utils/functions";
+import { getPoolsFromApi } from "@/utils/api";
+import { getTransactions, programId } from "@/utils/functions";
+import { Poll } from "@/utils/types";
 import { Clock, Plus, TrendingUp, Vote } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function PollsPage() {
-  const totalVotes = mockPolls.reduce((sum, poll) => sum + poll.totalVotes, 0);
   const getTxs = async () => await getTransactions(programId, 1000);
+  const [polls, setPolls] = useState<Poll[]>([]);
 
-  // const signatures = async () =>
-  //   await getAllProgramSignatures(connection, programId, {
-  //     until: undefined,
-  //     maxSignatures: 1000,
-  //   });
+  const getPools = async () => {
+    const { polls } = await getPoolsFromApi();
+    if (polls.success === true) {
+      const formatedPools = polls.data.polls.map((poll: any) => ({
+        pollId: poll.poll_id,
+        name: poll.poll_name,
+        description: poll.poll_name,
+        startTime: poll.poll_voting_start,
+        endTime: poll.pol_voting_end,
+      }));
+      setPolls(formatedPools);
+    }
+  };
 
   useEffect(() => {
     getTxs();
+    getPools();
     // signatures();
   }, []);
+  console.log(polls);
 
   return (
     <div className="space-y-8">
@@ -53,7 +66,7 @@ export default function PollsPage() {
               <Vote className="w-5 h-5 text-[rgb(var(--accent))]" />
               <div>
                 <p className="text-2xl font-bold text-slate-100">
-                  {mockPolls.length}
+                  {polls.length}
                 </p>
                 <p className="text-sm text-slate-400">Total Polls</p>
               </div>
@@ -68,7 +81,7 @@ export default function PollsPage() {
               <div>
                 <p className="text-2xl font-bold text-slate-100">
                   {
-                    mockPolls.filter(
+                    polls.filter(
                       (poll) =>
                         new Date(poll.startTime).getTime() <
                           new Date().getTime() &&
@@ -89,7 +102,7 @@ export default function PollsPage() {
               <div>
                 <p className="text-2xl font-bold text-slate-100">
                   {
-                    mockPolls.filter(
+                    polls.filter(
                       (poll) =>
                         new Date(poll.startTime).getTime() >
                         new Date().getTime()
@@ -107,9 +120,7 @@ export default function PollsPage() {
             <div className="flex items-center space-x-2">
               <Vote className="w-5 h-5 text-[rgb(var(--accent-2))]" />
               <div>
-                <p className="text-2xl font-bold text-slate-100">
-                  {totalVotes.toLocaleString()}
-                </p>
+                <p className="text-2xl font-bold text-slate-100">{100}</p>
                 <p className="text-sm text-slate-400">Total Votes</p>
               </div>
             </div>
@@ -117,8 +128,122 @@ export default function PollsPage() {
         </Card>
       </div>
 
-      {/* Empty State */}
-      {mockPolls.length === 0 && (
+      {polls.length > 0 && (
+        <section>
+          <div className="flex items-center space-x-2 mb-6">
+            <h2 className="text-xl font-semibold text-slate-100">Live Polls</h2>
+            <Badge
+              variant="outline"
+              className="accent-gradient text-slate-900 font-extrabold"
+            >
+              {
+                polls.filter(
+                  (pool) =>
+                    new Date(pool.startTime).getTime() / 1000 <
+                      Math.floor(Date.now() / 1000) &&
+                    new Date(pool.endTime).getTime() / 1000 >
+                      Math.floor(Date.now() / 1000)
+                ).length
+              }
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {polls.filter(
+              (pool) =>
+                new Date(pool.startTime).getTime() / 1000 <
+                  Math.floor(Date.now() / 1000) &&
+                new Date(pool.endTime).getTime() / 1000 >
+                  Math.floor(Date.now() / 1000)
+            ).length > 0 ? (
+              polls
+                .filter(
+                  (pool) =>
+                    new Date(pool.startTime).getTime() / 1000 <
+                      Math.floor(Date.now() / 1000) &&
+                    new Date(pool.endTime).getTime() / 1000 >
+                      Math.floor(Date.now() / 1000)
+                )
+                .map((poll) => <PollCard key={poll.pollId} poll={poll} />)
+            ) : (
+              <Card className="glass-card">
+                <CardContent className="p-12 text-center">
+                  <p className="text-slate-400">No live polls available</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Upcoming Polls */}
+      {polls.filter(
+        (pool) => new Date(pool.startTime).getTime() > new Date().getTime()
+      ).length > 0 && (
+        <section>
+          <div className="flex items-center space-x-2 mb-6">
+            <h2 className="text-xl font-semibold text-slate-100">
+              Upcoming Polls
+            </h2>
+            <Badge
+              variant="outline"
+              className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+            >
+              {
+                polls.filter(
+                  (pool) =>
+                    new Date(pool.startTime).getTime() > new Date().getTime()
+                ).length
+              }
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {polls
+              .filter(
+                (pool) =>
+                  new Date(pool.startTime).getTime() > new Date().getTime()
+              )
+              .map((poll) => (
+                <PollCard key={poll.pollId} poll={poll} />
+              ))}
+          </div>
+        </section>
+      )}
+
+      {/* Ended Polls */}
+      {polls.filter(
+        (pool) => new Date(pool.endTime).getTime() < new Date().getTime()
+      ).length > 0 && (
+        <section>
+          <div className="flex items-center space-x-2 mb-6">
+            <h2 className="text-xl font-semibold text-slate-100">
+              Recently Ended
+            </h2>
+            <Badge
+              variant="outline"
+              className="bg-slate-700/50 text-slate-400 border-slate-600"
+            >
+              {
+                polls.filter(
+                  (pool) =>
+                    new Date(pool.endTime).getTime() < new Date().getTime()
+                ).length
+              }
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {polls
+              .filter(
+                (pool) =>
+                  new Date(pool.endTime).getTime() < new Date().getTime()
+              )
+              .map((poll) => (
+                <PollCard key={poll.pollId} poll={poll} />
+              ))}
+          </div>
+        </section>
+      )}
+
+      {polls.length === 0 && (
         <Card className="glass-card">
           <CardContent className="p-12 text-center">
             <Vote className="w-12 h-12 text-slate-600 mx-auto mb-4" />

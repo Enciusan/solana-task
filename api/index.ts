@@ -1,15 +1,23 @@
 import express, { type Request, type Response } from "express";
 import dotenv from "dotenv";
 import pollsRoutes from "./routes/polls";
+const cors = require("cors");
 
 // Load environment variables
 dotenv.config();
+
+// CORS configuration
+const corsOptions = {
+  origin: "http://localhost:3000",
+  optionsSuccessStatus: 200,
+};
 
 const app = express();
 const PORT = process.env.PORT || 8899;
 
 // Configure middleware
 app.use(express.json());
+app.use(cors(corsOptions));
 
 // Health check endpoint
 app.get("/", (req: Request, res: Response) => {

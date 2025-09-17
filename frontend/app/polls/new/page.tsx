@@ -170,7 +170,7 @@ export default function CreatePollPage() {
     console.log(formData);
     await createPoll(
       {
-        id: 2,
+        pollId: 2,
         name: formData.name,
         description: formData.description,
         startTime: new anchor.BN(
@@ -346,19 +346,19 @@ export default function CreatePollPage() {
               <Button
                 type="submit"
                 className="accent-gradient text-slate-900 min-w-[120px]"
-                // disabled={isSubmitting}
+                disabled={isSubmitting}
               >
-                {/* {isSubmitting ? (
+                {isSubmitting ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-slate-700 border-t-transparent rounded-full animate-spin" />
                     <span>Creating...</span>
                   </div>
                 ) : (
-                  <> */}
-                <Plus className="w-4 h-4 mr-2" />
-                Create Poll
-                {/* </> */}
-                {/* )} */}
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Poll
+                  </>
+                )}
               </Button>
             </div>
           </form>

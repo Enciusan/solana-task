@@ -9,8 +9,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Clock, Users, TrendingUp } from "lucide-react";
-import { Poll, getPollStatus, getPollProgress } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { Poll } from "@/utils/types";
+import { getPollProgress, getPollStatus } from "@/utils/functions";
 
 interface PollCardProps {
   poll: Poll;
@@ -36,7 +37,7 @@ export function PollCard({ poll }: PollCardProps) {
   };
 
   return (
-    <Link href={`/polls/${poll.id}`}>
+    <Link href={`/polls/${poll.pollId}`}>
       <Card
         className={cn(
           "glass-card hover:bg-slate-800/40 transition-all duration-300 cursor-pointer group",
@@ -48,7 +49,7 @@ export function PollCard({ poll }: PollCardProps) {
             <Badge className={statusConfig[status].className}>
               {statusConfig[status].label}
             </Badge>
-            <span className="text-sm text-slate-400">#{poll.id}</span>
+            <span className="text-sm text-slate-400">#{poll.pollId}</span>
           </div>
           <CardTitle className="group-hover:text-[rgb(var(--accent))] transition-colors">
             {poll.name}
@@ -80,12 +81,29 @@ export function PollCard({ poll }: PollCardProps) {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-1">
                 <Users className="w-4 h-4" />
-                <span>{poll.totalVotes.toLocaleString()} votes</span>
+                <span>100 votes</span>
               </div>
               <div className="flex items-center space-x-1">
                 <TrendingUp className="w-4 h-4" />
-                <span>{poll.candidates.length} options</span>
+                <span>3 options</span>
               </div>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Clock className="w-4 h-4" />
+              <span>
+                {status === "upcoming"
+                  ? "Starts "
+                  : status === "live"
+                  ? "Ends "
+                  : "Ended "}
+                {status === "upcoming"
+                  ? new Date(poll.startTime).toLocaleDateString() +
+                    " " +
+                    new Date(poll.startTime).toLocaleTimeString()
+                  : new Date(poll.endTime).toLocaleDateString() +
+                    " " +
+                    new Date(poll.endTime).toLocaleTimeString()}
+              </span>
             </div>
           </div>
         </CardContent>

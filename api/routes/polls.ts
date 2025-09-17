@@ -1,9 +1,10 @@
 import express from "express";
 import type { Request, Response } from "express";
+import { getPoolsFromDb, getPoolsFromDbById } from "../db/functions";
 
 const router = express.Router();
 
-const polls = { poll_id: 1, name: "test", description: "test", start_time: "2023-01-01", end_time: "2023-01-02" };
+const polls = await getPoolsFromDb();
 const candidates = { candidate_id: 1, poll_id: 1, name: "test", votes: 0 };
 
 router.get("/", async (req: Request, res: Response) => {
@@ -24,8 +25,9 @@ router.get("/", async (req: Request, res: Response) => {
 router.get("/:pollId", async (req: Request, res: Response) => {
   try {
     const { pollId } = req.params;
+    const { poll, error } = await getPoolsFromDbById(pollId!);
 
-    if (!pollId) {
+    if (error) {
       return res.status(404).json({
         success: false,
         message: "Poll not found",
@@ -34,14 +36,7 @@ router.get("/:pollId", async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      data: {
-        pollId: polls.poll_id,
-        name: polls.name,
-        description: polls.description,
-        start: polls.start_time,
-        end: polls.end_time,
-        candidates: candidates,
-      },
+      data: poll,
     });
   } catch (error) {
     console.error("Error fetching poll details:", error);
