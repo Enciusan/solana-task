@@ -8,7 +8,7 @@ dotenv.config();
 
 // CORS configuration
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: process.env.NEXT_PUBLIC_IS_DEV === "true" ? "http://localhost:3000" : process.env.CROSS_ORIGIN_DOMAIN,
   optionsSuccessStatus: 200,
 };
 
